@@ -4,4 +4,14 @@ nwmaster-server:
   port: 5121
 
 game-version: "8109"
+
+# Pass authentication data through to
+# the original servers.
+mode: passthru
+
+# SQL-based authentication
+mode: sql
+
+# Always allow authentication.
+mode: dummy
 ...

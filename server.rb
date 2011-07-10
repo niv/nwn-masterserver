@@ -9,15 +9,20 @@ require 'pp'
 require 'packets'
 require 'hexdump'
 
-$config = YAML.load(IO.read("config.yaml"))
+$config = YAML.load(IO.read("config.yaml")).freeze
 
 $server = nil
+
+require "mode_" + $config['mode']
 
 module ServerHandler
   include NWN::Auth::Packets
 
+  @auth = IAuth.new
+
   def handle packet, src
     r = case packet
+
       when "BMST"
         BMSR.new
 
@@ -25,36 +30,41 @@ module ServerHandler
         obj = BMPR.new
         obj.playername = src.playername
         puts "Validating: #{obj.playername}"
-        obj.result = 0
+        obj.result = @auth.authenticate(src.playername, src.salt, src.pwhash,
+          src.platform) ? 0 : 1
 
         version = BMRB.new
         version.version = $config['game-version']
 
-        #news = BMMB.new
-        #news.message = "Hi!"
+        ret = [obj, version]
 
-        [obj, version]
+        motd = @auth.get_motd(src.playername)
+        if motd != nil
+          ret << BMMB.new
+          ret[-1].message = motd
+        end
+
+        ret
 
       when "BMAU"
         obj = BMAR.new
         obj.keys = []
+
         obj.keys << BMAR::Key.new
         obj.keys[-1].publickey = src.keys[0].publickey
-        obj.keys[-1].result = 0
-        obj.keys[-1].expansion = 0
+        obj.keys[-1].result, obj.keys[-1].expansion =
+          @auth.verify_key(src.keys[0].publickey, src.keys[0].keyhash) ? 0 : 1
+
         obj.keys << BMAR::Key.new
         obj.keys[-1].publickey = src.keys[1].publickey
-        obj.keys[-1].result = 0
-        obj.keys[-1].expansion = 1
+        obj.keys[-1].result, obj.keys[-1].expansion =
+          @auth.verify_key(src.keys[1].publickey, src.keys[1].keyhash) ? 0 : 1
+
         obj.keys << BMAR::Key.new
         obj.keys[-1].publickey = src.keys[2].publickey
-        obj.keys[-1].result = 0
-        obj.keys[-1].expansion = 2
+        obj.keys[-1].result, obj.keys[-1].expansion =
+          @auth.verify_key(src.keys[2].publickey, src.keys[2].keyhash) ? 0 :1
 
-        #obj.key = "\x03\x00" +
-        #  "\x08\x00" + src.keys[0].publickey + "\x00\x00" + "\x00\x00" +
-        #  "\x08\x00" + src.keys[1].publickey + "\x00\x00" + "\x01\x00" +
-        #  "\x08\x00" + src.keys[2].publickey + "\x00\x00" + "\x02\x00"
         obj
 
     end
@@ -99,7 +109,6 @@ end
 puts "Listening .."
 
 EM::run {
-  # listen for destination server packets
   $server = EM::open_datagram_socket(
     $config['nwmaster-server']['host'],
     $config['nwmaster-server']['port'],
