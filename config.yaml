@@ -1,0 +1,7 @@
+---
+nwmaster-server:
+  host: set.your.listen.ip.here
+  port: 5121
+
+game-version: "8109"
+...

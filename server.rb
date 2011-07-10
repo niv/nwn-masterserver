@@ -9,12 +9,7 @@ require 'pp'
 require 'packets'
 require 'hexdump'
 
-$config = YAML.load("""
----
-nwmaster-server:
-  host: 188.40.249.14
-  port: 5121
-""")
+$config = YAML.load(IO.read("config.yaml"))
 
 $server = nil
 
@@ -33,7 +28,7 @@ module ServerHandler
         obj.result = 0
 
         version = BMRB.new
-        version.version = "8109"
+        version.version = $config['game-version']
 
         #news = BMMB.new
         #news.message = "Hi!"
