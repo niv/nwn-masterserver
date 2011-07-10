@@ -7,25 +7,23 @@ module Packets
 class BMAU < Arpie::Binary
   field :lport, :uint16, :default => 5121
   field :unknown0, :uint16
+  # The player local IP (may be LAN-local too)
   field :ip, :bytes, :length => 4
+  # The player port
   field :playerport, :uint16
+
   field :salt, :bytes, :sizeof => :uint16
 
   class Key < Arpie::Binary
+    # A public key is constructed of the first eight even characters of
+    # a private key.
     field :publickey, :bytes, :sizeof => :uint16
+    # md5(privatekey + salt)
     field :keyhash, :bytes, :sizeof => :uint16
   end
 
-  field :keycount, :uint16
-  field :key1pub, :bytes, :sizeof => :uint16
-  field :key1hash, :bytes, :sizeof => :uint16
-  field :key2pub, :bytes, :sizeof => :uint16
-  field :key2hash, :bytes, :sizeof => :uint16
-  field :key3pub, :bytes, :sizeof => :uint16
-  field :key3hash, :bytes, :sizeof => :uint16
-  #field :key1, Key
-  #field :key2, Key
-  #field :key3, Key
+  field :keys, :list, :of => Key,
+    :sizeof => :uint16
 
   field :playername, :bytes, :sizeof => :uint16
 end
@@ -34,12 +32,28 @@ end
 class BMAR < Arpie::Binary
   field :lport, :uint16, :default => 5121
 
-  field :key, :bytes, :length => :all
+  class Key < Arpie::Binary
+    field :publickey, :bytes, :sizeof => :uint16
+    field :result, :uint16
+    field :expansion, :uint16
+  end
+
+  field :keys, :list, :of => Key,
+    :sizeof => :uint16
 end
 
+# A list of player public keys went away
 class BMDC < Arpie::Binary
+  field :lport, :uint16, :default => 5121
+
+  field :unknown0, :uint16
+
+  field :keys, :list,
+    :of => :bytes, :of_opts => { :sizeof => :uint16 }, 
+    :sizeof => :uint16
 end
 
+# Server heartbeat. "Still here."
 class BMHB < Arpie::Binary
 end
 

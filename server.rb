@@ -37,10 +37,24 @@ module ServerHandler
 
       when "BMAU"
         obj = BMAR.new
-        obj.key = "\x03\x00" +
-          "\x08\x00" + src.key1pub + "\x00\x00" + "\x00\x00" +
-          "\x08\x00" + src.key2pub + "\x00\x00" + "\x01\x00" +
-          "\x08\x00" + src.key3pub + "\x00\x00" + "\x02\x00"
+        obj.keys = []
+        obj.keys << BMAR::Key.new
+        obj.keys[-1].publickey = src.keys[0].publickey
+        obj.keys[-1].result = 0
+        obj.keys[-1].expansion = 0
+        obj.keys << BMAR::Key.new
+        obj.keys[-1].publickey = src.keys[1].publickey
+        obj.keys[-1].result = 0
+        obj.keys[-1].expansion = 1
+        obj.keys << BMAR::Key.new
+        obj.keys[-1].publickey = src.keys[2].publickey
+        obj.keys[-1].result = 0
+        obj.keys[-1].expansion = 2
+
+        #obj.key = "\x03\x00" +
+        #  "\x08\x00" + src.keys[0].publickey + "\x00\x00" + "\x00\x00" +
+        #  "\x08\x00" + src.keys[1].publickey + "\x00\x00" + "\x01\x00" +
+        #  "\x08\x00" + src.keys[2].publickey + "\x00\x00" + "\x02\x00"
         obj
 
     end
