@@ -1,2 +1,2 @@
 #!/bin/sh
-ruby -rubygems server.rb
+ruby -rubygems emloop.rb

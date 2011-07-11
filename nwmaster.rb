@@ -1,23 +1,4 @@
-#!/usr/bin/env ruby
-
-require 'arpie'
-require 'rubygems'
-require 'eventmachine'
-require 'yaml'
-require 'pp'
-
-require 'packets'
-require 'hexdump'
-
-$config = YAML.load(IO.read("config.yaml")).freeze
-
-$server = nil
-
-require "mode_" + $config['mode']
-
-$auth = IAuth.new
-
-module ServerHandler
+module NWMasterHandler
   include NWN::Auth::Packets
 
 
@@ -87,7 +68,7 @@ module ServerHandler
     end
     src, remaining = bin.from(data[4..-1])
 
-    puts "<- #{nwserver_addr}:#{nwserver_port} " + src.inspect
+    puts "<-M #{nwserver_addr}:#{nwserver_port} " + src.inspect
 
     to_send = handle(packet, src)
     for obj in to_send
@@ -101,18 +82,9 @@ module ServerHandler
   end
 
   def write host, port, obj
-    puts "-> #{host}:#{port} " + obj.inspect
+    puts "M-> #{host}:#{port} " + obj.inspect
     data = obj.class.name.split("::")[-1] + obj.to
-    $server.send_datagram(data, host, port)
+    $nwmaster_server.send_datagram(data, host, port)
   end
 end
 
-puts "Listening .."
-
-EM::run {
-  $server = EM::open_datagram_socket(
-    $config['nwmaster-server']['host'],
-    $config['nwmaster-server']['port'],
-    ServerHandler
-  )
-}

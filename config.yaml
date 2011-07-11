@@ -3,6 +3,10 @@ nwmaster-server:
   host: set.your.listen.ip.here
   port: 5121
 
+gamespy-server:
+  host: set.your.listen.ip.here
+  port: 27900
+
 game-version: "8109"
 
 # Pass authentication data through to
