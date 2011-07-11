@@ -53,11 +53,15 @@ class BMDC < Arpie::Binary
     :sizeof => :uint16
 end
 
-# Server heartbeat. "Still here."
+# Server heartbeat. "Still here." Empty packet.
 class BMHB < Arpie::Binary
 end
 
+# Notification about module load/startup.
 class BMMO < Arpie::Binary
+  # 0: none, 1: sou, 2: hotu, 3: both
+  field :expansion, :uint8
+  field :modulename, :bytes, :sizeof => :uint16
 end
 
 # BMPA message is sent when a player attempts to connect to the client.
@@ -75,7 +79,7 @@ class BMPA < Arpie::Binary
 
   field :unknown1, :uint16
 
-  # 0x47 lin, 0x4d mac, 0x57 win32
+  # 0x47(ascii G) lin, 0x4d(ascii M) mac, 0x57(ascii W) win32
   field :platform, :uint8
 
   field :unknown2, :uint8
@@ -92,10 +96,19 @@ class BMST < Arpie::Binary
   field :lport, :uint16, :default => 5121
 end
 class BMSR < Arpie::Binary
-  field :lport, :uint16, :default => 5121
+  # Should always be 0x0000
+  field :unknown0, :uint16
 end
 
 class BMSU < Arpie::Binary
+  field :platform, :uint8
+  field :gametype, :uint8
+  field :build, :uint16
+  field :unknown0, :uint16
+  field :gamespy, :uint8
+  field :unknown1, :uint8
+  # 0: none, 1: sou, 2: hotu, 3: both
+  field :expansion, :uint8
 end
 
 # c2s
