@@ -32,8 +32,6 @@ end
 
 
 class BMAR < Arpie::Binary
-  field :lport, :uint16, :default => 5121
-
   class Key < Arpie::Binary
     field :publickey, :bytes, :sizeof => :uint16
     field :result, :uint16
