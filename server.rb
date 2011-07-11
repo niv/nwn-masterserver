@@ -15,10 +15,11 @@ $server = nil
 
 require "mode_" + $config['mode']
 
+$auth = IAuth.new
+
 module ServerHandler
   include NWN::Auth::Packets
 
-  @auth = IAuth.new
 
   def handle packet, src
     r = case packet
@@ -30,7 +31,7 @@ module ServerHandler
         obj = BMPR.new
         obj.playername = src.playername
         puts "Validating: #{obj.playername}"
-        obj.result = @auth.authenticate(src.playername, src.salt, src.pwhash,
+        obj.result = $auth.authenticate(src.playername, src.salt, src.pwhash,
           src.platform) ? 0 : 1
 
         version = BMRB.new
@@ -38,7 +39,7 @@ module ServerHandler
 
         ret = [obj, version]
 
-        motd = @auth.get_motd(src.playername)
+        motd = $auth.get_motd(src.playername)
         if motd != nil
           ret << BMMB.new
           ret[-1].message = motd
@@ -52,18 +53,18 @@ module ServerHandler
 
         obj.keys << BMAR::Key.new
         obj.keys[-1].publickey = src.keys[0].publickey
-        obj.keys[-1].result, obj.keys[-1].expansion =
-          @auth.verify_key(src.keys[0].publickey, src.keys[0].keyhash) ? 0 : 1
+        a, b = $auth.verify_key(src.keys[0].publickey, src.keys[0].keyhash)
+        obj.keys[-1].result, obj.keys[-1].expansion = a ? 0 : 1, b
 
         obj.keys << BMAR::Key.new
         obj.keys[-1].publickey = src.keys[1].publickey
-        obj.keys[-1].result, obj.keys[-1].expansion =
-          @auth.verify_key(src.keys[1].publickey, src.keys[1].keyhash) ? 0 : 1
+        a, b = $auth.verify_key(src.keys[1].publickey, src.keys[1].keyhash)
+        obj.keys[-1].result, obj.keys[-1].expansion = a ? 0 : 1, b
 
         obj.keys << BMAR::Key.new
         obj.keys[-1].publickey = src.keys[2].publickey
-        obj.keys[-1].result, obj.keys[-1].expansion =
-          @auth.verify_key(src.keys[2].publickey, src.keys[2].keyhash) ? 0 :1
+        a, b = $auth.verify_key(src.keys[2].publickey, src.keys[2].keyhash)
+        obj.keys[-1].result, obj.keys[-1].expansion = a ? 0 : 1, b
 
         obj
 
