@@ -6,7 +6,9 @@ module Packets
 # and contains data used to independently authenticate the player CD keys.
 class BMAU < Arpie::Binary
   field :lport, :uint16, :default => 5121
-  field :unknown0, :uint16
+  # Presumably, this field holds count of authentication requests in the message
+  # or the message version. Either way, this value should always be 1.
+  field :unknown0, :uint16, :default => 1
   # The player local IP (may be LAN-local too)
   field :ip, :bytes, :length => 4
   # The player port
@@ -46,11 +48,19 @@ end
 class BMDC < Arpie::Binary
   field :lport, :uint16, :default => 5121
 
-  field :unknown0, :uint16
+  class Player < Arpie::Binary
+    field :keys, :list,
+      :of => :bytes, :of_opts => { :sizeof => :uint16 },
+      :sizeof => :uint16
+  end
 
-  field :keys, :list,
-    :of => :bytes, :of_opts => { :sizeof => :uint16 }, 
-    :sizeof => :uint16
+  field :players, :list,
+    :of => Player, :sizeof => :uint16
+
+#  field :keys, :list,
+#    :of => :bytes, :of_opts => { :sizeof => :uint16 }, 
+#    :sizeof => :uint16,
+#    :optional => true
 end
 
 # Server heartbeat. "Still here." Empty packet.
@@ -77,12 +87,12 @@ class BMPA < Arpie::Binary
   # md5(md5(player password) + Salt)
   field :pwhash, :bytes, :sizeof => :uint16
 
-  field :unknown1, :uint16
+  field :unknown1, :uint16, :default => 0
 
-  # 0x47(ascii G) lin, 0x4d(ascii M) mac, 0x57(ascii W) win32
+  # 0x4c(ascii L) lin, 0x4d(ascii M) mac, 0x57(ascii W) win32
   field :platform, :uint8
 
-  field :unknown2, :uint8
+  field :unknown2, :uint8, :default => 0
 end
 
 # Authentication result.
@@ -97,16 +107,16 @@ class BMST < Arpie::Binary
 end
 class BMSR < Arpie::Binary
   # Should always be 0x0000
-  field :unknown0, :uint16
+  field :unknown0, :uint16, :default => 0x0000
 end
 
 class BMSU < Arpie::Binary
   field :platform, :uint8
   field :gametype, :uint8
   field :build, :uint16
-  field :unknown0, :uint16
+  field :unknown0, :uint16, :default => 0
   field :gamespy, :uint8
-  field :unknown1, :uint8
+  field :unknown1, :uint8, :default => 0
   # 0: none, 1: sou, 2: hotu, 3: both
   field :expansion, :uint8
 end
