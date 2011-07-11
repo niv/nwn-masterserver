@@ -1,7 +1,6 @@
 module NWMasterHandler
   include NWN::Auth::Packets
 
-
   def handle packet, src
     r = case packet
 
@@ -11,7 +10,7 @@ module NWMasterHandler
       when "BMPA"
         obj = BMPR.new
         obj.playername = src.playername
-        puts "Validating: #{obj.playername}"
+        puts "Validating account: #{obj.playername}"
         obj.result = $auth.authenticate(src.playername, src.salt, src.pwhash,
           src.platform) ? 0 : 1
 
@@ -62,27 +61,28 @@ module NWMasterHandler
     begin
       bin = NWN::Auth::Packets.const_get(packet)
     rescue NameError => e
-      puts "Ignoring invalid packet #{packet} with data: "
-      puts data.hexdump
+      if $DEBUG
+        puts "Ignoring invalid packet #{packet} with data: "
+        puts data.hexdump
+      end
       return
     end
-    src, remaining = bin.from(data[4..-1])
+    begin
+      src, remaining = bin.from(data[4..-1])
+    rescue Arpie::EIncomplete => incomplete
+      return
+    end
 
-    puts "<-M #{nwserver_addr}:#{nwserver_port} " + src.inspect
+    puts "<-M #{nwserver_addr}:#{nwserver_port} " + src.inspect if $DEBUG
 
     to_send = handle(packet, src)
     for obj in to_send
-      begin
-        obj.lport = $config['nwmaster-server']['port']
-      rescue NoMethodError => e
-        nil
-      end
       write(nwserver_addr, nwserver_port, obj)
     end
   end
 
   def write host, port, obj
-    puts "M-> #{host}:#{port} " + obj.inspect
+    puts "M-> #{host}:#{port} " + obj.inspect if $DEBUG
     data = obj.class.name.split("::")[-1] + obj.to
     $nwmaster_server.send_datagram(data, host, port)
   end
