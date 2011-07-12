@@ -13,7 +13,9 @@ game-version: "8109"
 # the original servers.
 mode: passthru
 
-# SQL-based authentication
+# SQL-based authentication.
+# Set up empty database by running:
+#   sqlite3 nwmaster.db < mode_sql.sql
 mode: sql
 
 # Always allow authentication.
