@@ -1,6 +1,11 @@
 class IAuth
+  @exp = 0
+
   def verify_key publickey, hash
-    expansion = 0
+    @exp = 0 unless @exp
+    expansion = @exp
+    @exp += 1
+    @exp = 0 if @exp == 3
     [true, expansion]
   end
 
