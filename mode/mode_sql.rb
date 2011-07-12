@@ -9,11 +9,12 @@ class IAuth < IAuthBase
   class Account < Sequel::Model
   end
 
-  def verify_key publickey, hash
-    key = Key[publickey]
-    key or return [false, 0]
-
-    [true, key.expansion]
+  def verify_keys list
+    ret = {}
+    key.each {|pub, priv|
+      ret[pub] =  Key[pub] ? Key[pub].expansion : nil
+    }
+    ret
   end
 
   def authenticate account, salt, hash, platform

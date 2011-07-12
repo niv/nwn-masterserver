@@ -32,20 +32,20 @@ module NWMasterHandler
         obj = BMAR.new
         obj.keys = []
 
-        obj.keys << BMAR::Key.new
-        obj.keys[-1].publickey = src.keys[0].publickey
-        a, b = $auth.verify_key(src.keys[0].publickey, src.keys[0].keyhash)
-        obj.keys[-1].result, obj.keys[-1].expansion = a ? 0 : 1, b
+        verified = $auth.verify_keys src.keys.map {|key|
+          [key.publickey, key.keyhash]
+        }
+        Log.info "Verified keys for #{host}:#{port}: #{verified.inspect}"
 
-        obj.keys << BMAR::Key.new
-        obj.keys[-1].publickey = src.keys[1].publickey
-        a, b = $auth.verify_key(src.keys[1].publickey, src.keys[1].keyhash)
-        obj.keys[-1].result, obj.keys[-1].expansion = a ? 0 : 1, b
+        src.keys.each {|sk|
+          exp = verified[sk.publickey]
 
-        obj.keys << BMAR::Key.new
-        obj.keys[-1].publickey = src.keys[2].publickey
-        a, b = $auth.verify_key(src.keys[2].publickey, src.keys[2].keyhash)
-        obj.keys[-1].result, obj.keys[-1].expansion = a ? 0 : 1, b
+          obj.keys << BMAR::Key.new
+          obj.keys[-1].publickey = sk.publickey
+          obj.keys[-1].result = (exp == nil ? 1 : 0)
+          obj.keys[-1].expansion = exp || 0
+        }
+
 
         obj
 

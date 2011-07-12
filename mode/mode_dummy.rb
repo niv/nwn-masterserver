@@ -1,12 +1,10 @@
 class IAuth < IAuthBase
-  @exp = 0
-
-  def verify_key publickey, hash
-    @exp = 0 unless @exp
-    expansion = @exp
-    @exp += 1
-    @exp = 0 if @exp == 3
-    [true, expansion]
+  def verify_keys list
+    ret = {}
+    list.each_with_index {|h, idx|
+      ret[h[0]] = idx
+    }
+    ret
   end
 
   def authenticate account, salt, hash, platform
