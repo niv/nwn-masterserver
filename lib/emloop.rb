@@ -38,7 +38,5 @@ EM::run {
     NWMasterHandler
   )
   
-  $auth.setup
-
   server_clean_timer
 }
