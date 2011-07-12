@@ -6,9 +6,9 @@ module Packets
 # and contains data used to independently authenticate the player CD keys.
 class BMAU < Arpie::Binary
   field :lport, :uint16, :default => 5121
-  # Presumably, this field holds count of authentication requests in the message
-  # or the message version. Either way, this value should always be 1.
+  # hardcoded to 1 in nwserver. Count of users/requests?
   field :unknown0, :uint16, :default => 1
+
   # The player local IP (may be LAN-local too)
   field :ip, :bytes, :length => 4
   # The player port
@@ -86,12 +86,17 @@ class BMPA < Arpie::Binary
   # md5(md5(player password) + Salt)
   field :pwhash, :bytes, :sizeof => :uint16
 
-  field :unknown1, :uint16, :default => 0
+  # Language id
+  field :language, :uint16
 
   # 0x4c(ascii L) lin, 0x4d(ascii M) mac, 0x57(ascii W) win32
   field :platform, :uint8
 
-  field :unknown2, :uint8, :default => 0
+  # When sent by the server:
+  # 0: not DM, 1: DM
+  # When sent by the game client:
+  # 2: not DM, 3: DM
+  field :clienttype, :uint8
 end
 
 # Authentication result.
@@ -113,6 +118,7 @@ end
 
 # Server status update
 class BMSU < Arpie::Binary
+  # 0x4c(ascii L) lin, 0x4d(ascii M) mac, 0x57(ascii W) win32
   field :platform, :uint8
   field :gametype, :uint8
   field :build, :uint16
