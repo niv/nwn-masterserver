@@ -5,14 +5,10 @@ nwmaster-server:
 
 game-version: "8109"
 
-# Pass authentication data through to
-# the original servers.
-mode: passthru
-
 # SQL-based authentication.
 # Set up empty database by running:
 #   sqlite3 nwmaster.db < mode_sql.sql
-mode: sql
+#mode: sql
 
 # Always allow authentication.
 mode: dummy

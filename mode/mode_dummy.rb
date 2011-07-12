@@ -1,4 +1,4 @@
-class IAuth
+class IAuth < IAuthBase
   @exp = 0
 
   def verify_key publickey, hash
@@ -11,9 +11,5 @@ class IAuth
 
   def authenticate account, salt, hash, platform
     true
-  end
-
-  def get_motd account
-    nil
   end
 end
