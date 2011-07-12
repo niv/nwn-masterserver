@@ -52,6 +52,7 @@ class BMDC < Arpie::Binary
       :sizeof => :uint16
   end
 
+  # Empty list means server shutdown.
   field :players, :list,
     :of => Player, :sizeof => :uint16
 
@@ -100,14 +101,17 @@ class BMPR < Arpie::Binary
   field :result, :uint16
 end
 
+# Server Startup
 class BMST < Arpie::Binary
   field :lport, :uint16, :default => 5121
 end
+# Server startup ack
 class BMSR < Arpie::Binary
   # Should always be 0x0000
   field :unknown0, :uint16, :default => 0x0000
 end
 
+# Server status update
 class BMSU < Arpie::Binary
   field :platform, :uint8
   field :gametype, :uint8

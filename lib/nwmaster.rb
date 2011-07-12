@@ -1,16 +1,17 @@
 module NWMasterHandler
   include NWN::Auth::Packets
 
-  def handle packet, src
+  def handle packet, src, host, port
     r = case packet
 
       when "BMST"
+        Server.touch(host, port)
         BMSR.new
 
       when "BMPA"
         obj = BMPR.new
         obj.playername = src.playername
-        puts "Validating account: #{obj.playername}"
+        Log.info "Validating account: #{obj.playername}"
         obj.result = $auth.authenticate(src.playername, src.salt, src.pwhash,
           src.platform) ? 0 : 1
 
@@ -20,7 +21,7 @@ module NWMasterHandler
         ret = [obj, version]
 
         motd = $auth.get_motd(src.playername)
-        if motd != nil
+        if obj.result == 0 && motd != nil
           ret << BMMB.new
           ret[-1].message = motd
         end
@@ -48,6 +49,22 @@ module NWMasterHandler
 
         obj
 
+      when "BMSU"
+        Server.touch(host, port)
+        nil
+
+      when "BMHB"
+        server = Server.touch(host, port)
+        nil
+
+      when "BMMO"
+        Server.touch(host, port, src.modulename, src.expansion)
+        nil
+
+      when "BMDC"
+        Server.remove(host, port) if src.players.size == 0
+        nil
+
     end
     r = r.is_a?(Array) ? r : [r]
     r.compact
@@ -56,33 +73,28 @@ module NWMasterHandler
   def receive_data data
     nwserver_port, *nwserver_addr = get_peername[2,6].unpack "nC4"
     nwserver_addr = "%d.%d.%d.%d" % nwserver_addr
+    src_fmt = "%s:%d" % [nwserver_addr, nwserver_port]
 
     packet = data[0,4]
     begin
       bin = NWN::Auth::Packets.const_get(packet)
-    rescue NameError => e
-      if $DEBUG
-        puts "Ignoring invalid packet #{packet} with data: "
-        puts data.hexdump
-      end
-      return
-    end
-    begin
       src, remaining = bin.from(data[4..-1])
-    rescue Arpie::EIncomplete => incomplete
+    rescue NameError, Arpie::EIncomplete => e
+      Log.warn "#{src_fmt}: Dropping invalid packet: "
+      Log.warn data.hexdump
       return
     end
 
-    puts "<-M #{nwserver_addr}:#{nwserver_port} " + src.inspect if $DEBUG
+    Log.debug { "<-M #{src_fmt}: " + src.inspect }
 
-    to_send = handle(packet, src)
+    to_send = handle(packet, src, nwserver_addr, nwserver_port)
     for obj in to_send
       write(nwserver_addr, nwserver_port, obj)
     end
   end
 
   def write host, port, obj
-    puts "M-> #{host}:#{port} " + obj.inspect if $DEBUG
+    Log.debug { "M-> #{host}:#{port}: " + obj.inspect }
     data = obj.class.name.split("::")[-1] + obj.to
     $nwmaster_server.send_datagram(data, host, port)
   end
