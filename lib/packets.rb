@@ -55,11 +55,6 @@ class BMDC < Arpie::Binary
   # Empty list means server shutdown.
   field :players, :list,
     :of => Player, :sizeof => :uint16
-
-#  field :keys, :list,
-#    :of => :bytes, :of_opts => { :sizeof => :uint16 }, 
-#    :sizeof => :uint16,
-#    :optional => true
 end
 
 # Server heartbeat. "Still here." Empty packet.
@@ -129,39 +124,89 @@ class BMSU < Arpie::Binary
   field :expansion, :uint8
 end
 
-# c2s
+# Request buddy list.
 class BMBI < Arpie::Binary
   field :lport, :uint16, :default => 5121
   field :account, :bytes, :sizeof => :uint16
 end
-# c2s
+
+# Buddy-Add: add a buddy to the friends list
+class BMBA < Arpie::Binary
+  field :lport, :uint16, :default => 5121
+  field :account, :bytes, :sizeof => :uint16
+  field :buddy, :bytes, :sizeof => :uint16  
+end
+
+# Update buddy list visible status
+class BMFG < Arpie::Binary
+  field :lport, :uint16, :default => 5121
+  field :account, :bytes, :sizeof => :uint16
+  # 2: only to buddies
+  # 1: always
+  # 0: never
+  field :status, :uint8
+end
+
+# c2s: Friend list related?
 class BMBE < Arpie::Binary
   field :lport, :uint16, :default => 5121
   field :account, :bytes, :sizeof => :uint16
 end
 
-# notify about client?
+# s2c: Friend list related?
+class BMBJ < Arpie::Binary
+  field :unknown0, :uint32
+end
+
+# Friend list update.
+class BMBF < Arpie::Binary
+  class Buddy < Arpie::Binary
+    field :account, :bytes, :sizeof => :uint16
+    # The server this buddy is currently playing on.
+    # 0 for offline.
+    field :server_ip, :uint32, :default => 0
+    # The server port. 0 for offline.
+    field :server_port, :uint16, :default => 0
+  end
+
+  field :unknown0, :uint16, :default => 0
+
+  field :buddies, :list, :of => Buddy,
+    :sizeof => :uint16
+end
+
+# Remove buddy from list.
+class BMBC < Arpie::Binary
+  field :lport, :uint16, :default => 5121
+  field :account, :bytes, :sizeof => :uint16
+  field :buddy, :bytes, :sizeof => :uint16  
+end
+
+# notify about client logging in?
 class BMMA < Arpie::Binary
   field :lport, :uint16, :default => 5121
 end
+# Reply to BMMA
 class BMRA < Arpie::Binary
   field :lport, :uint16, :default => 5121
   field :unknown0, :uint8
 end
 
-# Create account.
+# Request account creation.
 class BMCA < Arpie::Binary
   field :lport, :uint16, :default => 5121
   field :account, :bytes, :sizeof => :uint16
 end
 
 # server announce message, displayed after receiving
-# the gamespy listing.
+# the gamespy listing. Will not be displayed when
+# the user clicks cancel.
 class BMMB < Arpie::Binary
   field :message, :bytes, :sizeof => :uint16
 end
 
-# Contains the game client version.
+# Contains the game client build version.
+# Sent in either direction (?)
 class BMRB < Arpie::Binary
   field :lport, :uint16, :default => 5121
   field :version, :bytes, :sizeof => :uint16
