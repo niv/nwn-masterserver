@@ -155,9 +155,9 @@ class BMCA < Arpie::Binary
   field :account, :bytes, :sizeof => :uint16
 end
 
-# server announce message
+# server announce message, displayed after receiving
+# the gamespy listing.
 class BMMB < Arpie::Binary
-  field :lport, :uint16, :default => 5121
   field :message, :bytes, :sizeof => :uint16
 end
 
