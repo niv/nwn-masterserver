@@ -3,7 +3,7 @@ require 'digest/md5'
 
 DB = Sequel.sqlite("nwmaster.db")
 
-class IAuth < IAuthBase
+class SqlHandler < BaseHandler
   class Key < Sequel::Model
   end
   class Account < Sequel::Model

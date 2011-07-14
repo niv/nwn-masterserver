@@ -5,11 +5,29 @@ nwmaster-server:
 
 game-version: "8109"
 
-# SQL-based authentication.
-# Set up empty database by running:
-#   sqlite3 nwmaster.db < mode_sql.sql
-#mode: sql
+# You can chain handlers by simply putting them
+# in a list here. They will be called in the given
+# order, and the first to return a non-nil result
+# for any request will be authoritative.
+#
+# Handlers are expected to live in handlers/, and
+# implement a class with the capitalized name given here
+# and "Handler" appended: reject -> RejectHandler.
+# Handlers are expected to subclass BaseHandler, for future
+# compatibility.
+# 
+# Specific methods defined there will be called in the
+# order listed here. For a list of all possible methods,
+# see lib/handler.rb.
+handlers:
+  # SQL-based authentication.
+  # Set up empty database by running:
+  #   sqlite3 nwmaster.db < mode_sql.sql
+  #- sql
 
-# Always allow authentication.
-mode: dummy
+  # Always allow auth & auth.
+  #- allow
+
+  # Always reject auth & auth.
+  - reject
 ...

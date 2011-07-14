@@ -1,4 +1,4 @@
-class IAuth < IAuthBase
+class AllowHandler < BaseHandler
   def verify_keys list
     ret = {}
     list.each_with_index {|h, idx|

@@ -8,17 +8,20 @@ require 'lib/server'
 require 'lib/packets'
 require 'lib/hexdump'
 require 'lib/nwmaster'
-require 'lib/iauth'
+require 'lib/handler'
 
 require 'logger'
 
 Log = Logger.new(STDOUT).freeze
 
 $config = YAML.load(IO.read("config.yaml")).freeze
-require "mode/mode_" + $config['mode']
-$auth = IAuth.new
-Log.info "Using #{$config['mode']} as authentication mode"
 
+# Set up the handler chain
+for h in $config['handlers'] do
+  HandlerChain.push(h)
+end
+
+Log.info "Handler chain: #{$config['handlers'].inspect}"
 
 $nwmaster_server = nil
 

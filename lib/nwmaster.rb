@@ -12,7 +12,7 @@ module NWMasterHandler
         obj = BMPR.new
         obj.playername = src.playername
         Log.info "Validating account: #{obj.playername}"
-        obj.result = $auth.authenticate(src.playername, src.salt, src.pwhash,
+        obj.result = HandlerChain.authenticate(src.playername, src.salt, src.pwhash,
           src.platform) ? 0 : 1
 
         version = BMRB.new
@@ -20,7 +20,7 @@ module NWMasterHandler
 
         ret = [obj, version]
 
-        motd = $auth.get_motd(src.playername)
+        motd = HandlerChain.get_motd(src.playername)
         if obj.result == 0 && motd != nil
           ret << BMMB.new
           ret[-1].message = motd
@@ -32,9 +32,9 @@ module NWMasterHandler
         obj = BMAR.new
         obj.keys = []
 
-        verified = $auth.verify_keys src.keys.map {|key|
+        verified = HandlerChain.verify_keys(src.keys.map {|key|
           [key.publickey, key.keyhash]
-        }
+        }) || {}
         Log.info "Verified keys for #{host}:#{port}: #{verified.inspect}"
 
         src.keys.each {|sk|
