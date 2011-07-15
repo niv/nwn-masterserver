@@ -4,6 +4,7 @@ require 'arpie'
 require 'rubygems'
 require 'eventmachine'
 
+require 'lib/account'
 require 'lib/server'
 require 'lib/packets'
 require 'lib/hexdump'
@@ -27,10 +28,11 @@ $nwmaster_server = nil
 
 Log.info "Listening on #{$config['nwmaster-server'].inspect}"
 
-def server_clean_timer
+def clean_timer
   EventMachine::Timer.new(5*30) do
     Server.clean
-    server_clean_timer
+    Account.clean
+    clean_timer
   end
 end
 
@@ -41,5 +43,5 @@ EM::run {
     NWMasterHandler
   )
   
-  server_clean_timer
+  clean_timer
 }

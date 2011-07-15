@@ -26,6 +26,10 @@ module NWMasterHandler
           ret[-1].message = motd
         end
 
+        if obj.result == 0 && (src.clienttype == 2 || src.clienttype == 3)
+          Account.auth(obj.playername, host, port)
+        end
+
         ret
 
       when "BMAU"
@@ -87,7 +91,7 @@ module NWMasterHandler
 
     Log.debug { "<-M #{src_fmt}: " + src.inspect }
 
-    to_send = handle(packet, src, nwserver_addr, nwserver_port)
+    to_send = handle(packet, src, nwserver_addr, nwserver_port) || []
     for obj in to_send
       write(nwserver_addr, nwserver_port, obj)
     end
