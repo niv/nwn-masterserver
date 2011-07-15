@@ -5,6 +5,18 @@ nwmaster-server:
 
 game-version: "8109"
 
+# The time after which idle servers are
+# removed from the known list.
+# Servers heartbeat every five minutes, so
+# values less than that don't make much sense.
+server-timeout: 330
+
+# The time after which idle players (gs-accounts) are
+# removed from the known list.
+# This does not affect cd key authentication - this is
+# just for the friends list.
+account-timeout: 330
+
 # You can chain handlers by simply putting them
 # in a list here. They will be called in the given
 # order, and the first to return a non-nil result

@@ -52,7 +52,7 @@ class Account
   end
 
   def stale?
-    @last_seen + 5*60+30 < Time.now
+    @last_seen + $config['account-timeout'] < Time.now
   end
 
 end
