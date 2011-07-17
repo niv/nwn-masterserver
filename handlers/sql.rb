@@ -22,7 +22,6 @@ class SqlHandler < BaseHandler
     acc or return false
 
     # md5(md5(player password) + Salt)
-    hash == Digest::MD5.hexdigest(
-        Digest::MD5.hexdigest(acc.password) + salt)
+    hash == Digest::MD5.hexdigest(acc.password + salt)
   end
 end
