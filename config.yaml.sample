@@ -34,7 +34,7 @@ account-timeout: 330
 handlers:
   # SQL-based authentication.
   # Set up empty database by running:
-  #   sqlite3 nwmaster.db < mode_sql.sql
+  #   sequel -m sql_migrations sqlite://nwmaster.db
   #- sql
 
   # Always allow auth & auth.

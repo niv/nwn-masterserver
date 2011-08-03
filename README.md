@@ -18,7 +18,7 @@ Currently, nwn-masterserver requires the following gems to be installed:
 
 * eventmachine
 * arpie (>= 0.0.6)
-* sequel (& libsqlite3-ruby)
+* sequel (& libsqlite3-ruby) (if you want to use the example SQL handler)
 
 To install, simply check out the current git master and copy config.yaml.example
 to config.yaml. Edit to suit your needs.
