@@ -212,6 +212,21 @@ class BMRB < Arpie::Binary
   field :version, :bytes, :sizeof => :uint16
 end
 
+# These packets here are as of yet unknown.
+# String names taken from client binary, so
+# they might be unused, deprecated, ..
+class BMCC < Arpie::Binary; end
+class BMDQ < Arpie::Binary; end
+class BMDA < Arpie::Binary; end
+class BMDH < Arpie::Binary; end
+class BMNC < Arpie::Binary; end
+class BMCB < Arpie::Binary; end
+class BMCD < Arpie::Binary; end
+class BMBB < Arpie::Binary; end
+class BMBD < Arpie::Binary; end
+class BMBH < Arpie::Binary; end
+class BMDR < Arpie::Binary; end
+
 end # module Packets
 end # module ServerAuth
 end # module NWN
