@@ -80,6 +80,7 @@ module NWMasterHandler
     src_fmt = "%s:%d" % [nwserver_addr, nwserver_port]
 
     packet = data[0,4]
+    packet =~ /^[A-Z]/ or return
     begin
       bin = NWN::Auth::Packets.const_get(packet)
       src, remaining = bin.from(data[4..-1])
