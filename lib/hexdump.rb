@@ -78,7 +78,7 @@ class String
 				if (i < selfsize)
 					ret += sprintf( "%08x: ", address)
 					while (i < selfsize)
-						ret += sprintf "%02x", self[i]
+						ret += sprintf "%02x", self[i].ord
 						i += 1; k += 1
 						ret += " " if ((i % 2) == 0)
 					end
